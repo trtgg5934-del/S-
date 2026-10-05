@@ -1,0 +1,382 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إلى شهد ❤️</title>
+  <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Tajawal', sans-serif;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ffe6eb 0%, #def3f8 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* خلفية القلوب المتساقطة */
+    .hearts-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .falling-heart {
+      position: absolute;
+      color: #ff4d6d;
+      opacity: 0.6;
+      animation: fall linear infinite;
+    }
+
+    @keyframes fall {
+      0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+      100% { transform: translateY(105vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* البطاقات */
+    .card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(10px);
+      padding: 35px 25px;
+      border-radius: 24px;
+      box-shadow: 0 15px 35px rgba(230, 80, 115, 0.18);
+      text-align: center;
+      max-width: 450px;
+      width: 100%;
+      border: 2px solid #fff;
+      position: relative;
+      z-index: 10;
+      animation: fadeIn 0.8s ease-in-out;
+    }
+
+    .hidden { display: none !important; }
+
+    .heart-icon {
+      font-size: 50px;
+      color: #ff4d6d;
+      animation: pulse 1.5s infinite;
+      display: inline-block;
+      margin-bottom: 10px;
+    }
+
+    h1, h2 {
+      color: #c9184a;
+      font-weight: 900;
+      margin-bottom: 15px;
+    }
+
+    .date-badge {
+      display: inline-block;
+      background-color: #ffb3c1;
+      color: #590d22;
+      padding: 8px 18px;
+      border-radius: 20px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .message-box {
+      background-color: #fff0f3;
+      border-right: 4px solid #ff4d6d;
+      padding: 18px;
+      border-radius: 12px;
+      text-align: right;
+      line-height: 1.8;
+      color: #590d22;
+      font-size: 1.05rem;
+      margin-bottom: 20px;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 12px 20px;
+      font-size: 1.1rem;
+      border: 2px solid #ffb3c1;
+      border-radius: 50px;
+      outline: none;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+
+    .btn {
+      background: linear-gradient(45deg, #ff4d6d, #ff758f);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 8px 20px rgba(255, 77, 109, 0.3);
+      transition: all 0.3s ease;
+      width: 100%;
+      margin-top: 8px;
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 25px rgba(255, 77, 109, 0.4);
+    }
+
+    /* بطاقة أسباب حب شهد */
+    .reason-box {
+      background: #ffe6eb;
+      color: #800f2f;
+      font-weight: 700;
+      padding: 15px;
+      border-radius: 15px;
+      margin: 15px 0;
+      min-height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.05rem;
+      border: 1px dashed #ff4d6d;
+    }
+
+    /* لعبة هيلو كيتي */
+    .game-area {
+      background: #fff0f3;
+      border-radius: 16px;
+      padding: 20px;
+      margin: 15px 0;
+      position: relative;
+      height: 180px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      overflow: hidden;
+    }
+
+    .kitty {
+      font-size: 55px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.4s ease;
+    }
+
+    .heart-center {
+      font-size: 40px;
+      opacity: 0.3;
+      transition: all 0.5s ease;
+    }
+
+    .error-text {
+      color: #d90429;
+      font-size: 0.9rem;
+      margin-bottom: 10px;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.2); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(15px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- القلوب المتساقطة بالخلفية -->
+  <div class="hearts-backdrop" id="heartsContainer"></div>
+
+  <!-- 1. شاشة القفل -->
+  <div class="card" id="lockCard">
+    <div class="heart-icon">🔒</div>
+    <h2>أدخلي السر لفتح الصفحة ✨</h2>
+    <input type="text" class="input-field" id="passInput" placeholder="اكتبي التاريخ هنا...">
+    <div class="error-text hidden" id="errorMsg">الكلمة غير صحيحة، حاولي مرة أخرى ❤️</div>
+    <button class="btn" onclick="checkPassword()">دخول</button>
+  </div>
+
+  <!-- 2. الشاشة الرئيسية للمعايدة -->
+  <div class="card hidden" id="mainCard">
+    <div class="heart-icon">❤️</div>
+    <h1>إلى شهد 💖</h1>
+    
+    <div class="date-badge">
+      📅 25 أغسطس | 🕒 12:02
+    </div>
+
+    <div class="message-box">
+      أحس إني صج محظوظ بوجود إنسانة مثلج بحياتي.. <br>
+      أحبج وايد وايد، وكل يوم ينعاد عليج وأنتي أغلى وأجمل شيء صار لي ✨
+    </div>
+
+    <button class="btn" onclick="goToReasonsCard()">ليش أحبج؟ اضغطي هنا 💌</button>
+  </div>
+
+  <!-- 3. بطاقة أسباب الحب (اقتراح إضافي مميز) -->
+  <div class="card hidden" id="reasonsCard">
+    <div class="heart-icon">✨🌸</div>
+    <h2>أشياء تخلي شهد مميزة ❤️</h2>
+    <div class="reason-box" id="reasonText">اضغطي الزر تحت عشان تشوفين الأسباب 👀</div>
+    <button class="btn" onclick="nextReason()">سبب جديد ✨</button>
+    <button class="btn" style="background: linear-gradient(45deg, #a2d2ff, #bde0fe); color: #03045e;" onclick="goToLoveQuestion()">انتقلي للسؤال 💖</button>
+  </div>
+
+  <!-- 4. سؤال تحبيني؟ -->
+  <div class="card hidden" id="questionCard">
+    <div class="heart-icon">❓💖</div>
+    <h2>تحبيني؟ 🥺</h2>
+    <p style="color: #590d22; margin-bottom: 20px;">جاوبي بكل صراحة 👀</p>
+    <button class="btn" onclick="sayYes()">اييي ❤️</button>
+  </div>
+
+  <!-- 5. شاشة أنا أحبششش أكثررر -->
+  <div class="card hidden" id="loveMoreCard">
+    <div class="heart-icon">🥰</div>
+    <h1 style="font-size: 2rem; color: #ff0054;">وانا أحبششش أكثرر ❤️✨</h1>
+    <p style="color: #590d22; margin-bottom: 20px;">والحين باقي نلعب لعبة صغيرة عشاني وعشانج 🎀</p>
+    <button class="btn" onclick="goToKittyGame()">يلا للعبة هيلو كيتي 🐱</button>
+  </div>
+
+  <!-- 6. لعبة هيلو كيتي -->
+  <div class="card hidden" id="gameCard">
+    <h2>لعبة هيلو كيتي 🎀</h2>
+    <p style="color: #590d22; font-size: 0.95rem;">اضغطي على الزر لتقريب هيلو كيتي وربط نصفي القلب! 💖</p>
+    
+    <div class="game-area">
+      <div class="kitty" id="kittyLeft">🐱</div>
+      <div class="heart-center" id="heartCenter">💔</div>
+      <div class="kitty" id="kittyRight">🐱</div>
+    </div>
+
+    <button class="btn" id="bringCloserBtn" onclick="bringKittiesCloser()">قرّبيهم من بعض 🐾</button>
+  </div>
+
+  <script>
+    // إنشاء قلوب متساقطة بالخلفية
+    function createFallingHearts() {
+      const container = document.getElementById('heartsContainer');
+      const heartSymbols = ['❤️', '💖', '💕', '💗', '🌸'];
+      for (let i = 0; i < 25; i++) {
+        const heart = document.createElement('div');
+        heart.className = 'falling-heart';
+        heart.innerText = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.animationDuration = (Math.random() * 3 + 3) + 's';
+        heart.style.animationDelay = Math.random() * 5 + 's';
+        heart.style.fontSize = (Math.random() * 15 + 15) + 'px';
+        container.appendChild(heart);
+      }
+    }
+    createFallingHearts();
+
+    // التحقق من كلمة السر
+    function checkPassword() {
+      const input = document.getElementById('passInput').value.trim();
+      if (input === "25 اغسطس" || input === "25 أغسطس" || input === "25اغسطس" || input === "25أغسطس") {
+        document.getElementById('lockCard').classList.add('hidden');
+        document.getElementById('mainCard').classList.remove('hidden');
+        celebrate();
+      } else {
+        document.getElementById('errorMsg').classList.remove('hidden');
+      }
+    }
+
+    function goToReasonsCard() {
+      document.getElementById('mainCard').classList.add('hidden');
+      document.getElementById('reasonsCard').classList.remove('hidden');
+      nextReason();
+    }
+
+    // أسباب حب شهد
+    const reasons = [
+      "ضحكتج اللي تفتح النفس وتغير لي المود 🥰",
+      "لأنج ألطف وأحلى شيء صار لي بحياتي ✨",
+      "تفاصيلج الصغيرة والجميلة اللي تميزج عن الكل 🌸",
+      "لأنج دايماً تخليني أحس إني محظوظ فيج ❤️",
+      "لأنج شهد.. وأجمل من شهد ما فيه! 💖"
+    ];
+    let reasonIndex = 0;
+
+    function nextReason() {
+      const box = document.getElementById('reasonText');
+      box.innerText = reasons[reasonIndex];
+      reasonIndex = (reasonIndex + 1) % reasons.length;
+    }
+
+    function goToLoveQuestion() {
+      document.getElementById('reasonsCard').classList.add('hidden');
+      document.getElementById('questionCard').classList.remove('hidden');
+    }
+
+    function sayYes() {
+      celebrate();
+      document.getElementById('questionCard').classList.add('hidden');
+      document.getElementById('loveMoreCard').classList.remove('hidden');
+    }
+
+    function goToKittyGame() {
+      document.getElementById('loveMoreCard').classList.add('hidden');
+      document.getElementById('gameCard').classList.remove('hidden');
+    }
+
+    // لعبة هيلو كيتي
+    let step = 0;
+    function bringKittiesCloser() {
+      step++;
+      const kLeft = document.getElementById('kittyLeft');
+      const kRight = document.getElementById('kittyRight');
+      const heart = document.getElementById('heartCenter');
+      const btn = document.getElementById('bringCloserBtn');
+
+      if (step === 1) {
+        kLeft.style.transform = "translateX(-30px)";
+        kRight.style.transform = "translateX(30px)";
+        heart.innerText = "💗";
+        heart.style.opacity = "0.7";
+      } else if (step === 2) {
+        kLeft.style.transform = "translateX(-60px)";
+        kRight.style.transform = "translateX(60px)";
+        heart.innerText = "💖";
+        heart.style.opacity = "1";
+        heart.style.transform = "scale(1.3)";
+        btn.innerText = "كمان شوية! ✨";
+      } else if (step === 3) {
+        kLeft.style.transform = "translateX(-85px)";
+        kRight.style.transform = "translateX(85px)";
+        heart.innerText = "❤️";
+        heart.style.transform = "scale(1.8)";
+        btn.innerText = "اكتمل الحب! 🎉";
+        celebrate();
+        btn.disabled = true;
+        btn.style.opacity = "0.7";
+      }
+    }
+
+    function celebrate() {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+  </script>
+
+</body>
+</html>
